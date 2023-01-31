@@ -10,3 +10,10 @@ Developed for my PC emulator, Marty: https://github.com/dbalsom/marty
 # Credits and Thanks
 Thank you to xot and EMMIR
 
+# Usage
+
+Decode 'war.png' to 'output.png' with specified hue, saturation and luminosity, using fast method
+cga_artifact --input .\examples\war.png -h 1.5 -s 1.5 -l 1.0 --method fast 
+
+Decode 'king.png' to 'output.png' with specified hue, saturation and luminosity, using accurate method
+cga_artifact --input .\examples\king.png -h 1.5 -s 1.5 -l 1.0 --method accurate 
