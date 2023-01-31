@@ -1,0 +1,76 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'cga_artifact'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=cga_artifact",
+                    "--package=cga_artifact"
+                ],
+                "filter": {
+                    "name": "cga_artifact",
+                    "kind": "bin"
+                }
+            },
+            "args": [
+                "--input", ".\\examples\\king.png", "-h", "1.5", "-s", "1.0", "-l", "1.0", "--method", "accurate"
+            ],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "RUST_LOG": "trace",
+                "RUST_LOG_STYLE": "always",
+                "RUST_BACKTRACE": "1"
+            }               
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Release executable 'cga_artifact'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "-r",
+                    "--bin=cga_artifact",
+                    "--package=cga_artifact"
+                ],
+                "filter": {
+                    "name": "cga_artifact",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "RUST_LOG": "trace",
+                "RUST_LOG_STYLE": "always",
+                "RUST_BACKTRACE": "1"
+            }               
+        },        
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'cga_artifact'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=cga_artifact",
+                    "--package=cga_artifact"
+                ],
+                "filter": {
+                    "name": "cga_artifact",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
