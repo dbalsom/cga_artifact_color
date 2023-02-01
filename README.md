@@ -13,7 +13,10 @@ Programs that have a Composite output mode utilizing the CGA's high resolution m
 
 # A note on Sierra screenshots
 
-Screenshots of early Sierra titles showing the CGA's magenta and cyan palette are not correct for a composite display, so will produce erroneous colors. The video mode these games operated in for composite output was the CGA's monochrome 640x200 high resolution mode. These screenshots are usually created by emulating these games with an EGA or VGA card, which do not support the CGA's high resolution 640x200 mono mode, and will instead display a 320x200, 2-bit color image. 
+Screenshots of early Sierra titles showing the CGA's magenta and cyan palette are not correct for a composite display, so will produce erroneous colors. The video mode these games operated in for composite output was the CGA's monochrome 640x200 high resolution mode. These screenshots are usually created by emulating these games with an EGA or VGA card, which do not support the CGA's high resolution 640x200 mono mode, and will instead display a 320x200, 2-bit color image. The resulting colors do not result in an equivalent composite signal.
+
+![ega_bad_color](https://user-images.githubusercontent.com/7229541/216099553-9d6fcc50-275a-4afb-9b63-f44a0b39590f.png)
+
 
 # Credits and Thanks
 Thank you to xot and EMMIR
