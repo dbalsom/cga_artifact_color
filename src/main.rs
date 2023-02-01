@@ -66,8 +66,8 @@ fn main() {
         std::process::exit(1);
     });
 
-    let img_w = img.width();
-    let img_h = img.height();
+    let mut img_w = img.width();
+    let mut img_h = img.height();
 
     //let rgba8_img = img.to_rgba8();
 
@@ -84,6 +84,9 @@ fn main() {
             rgba8_img = img
                 .resize(img_w * 2, img_h * 2, FilterType::Nearest)
                 .to_rgba8();
+
+            img_w = rgba8_img.width();
+            img_h = rgba8_img.height();
 
             bytes_in = rgba8_img.into_raw();
             rgba_out = vec![0; bytes_in.len()];
