@@ -1,3 +1,8 @@
+
+![flower_girl_out_h2_0](https://user-images.githubusercontent.com/7229541/222979507-07bf7f1b-cc3d-4ae4-b995-301ed881d2ca.png)
+
+Artwork by VileR
+
 # CGA Artifact Color Decoder
 Decodes NTSC composite artifact color from CGA RGBI image data. This is not a full NTSC simulation.
 
