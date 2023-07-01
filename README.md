@@ -1,13 +1,18 @@
+
+![flower_girl_out_h2_0](https://user-images.githubusercontent.com/7229541/222979507-07bf7f1b-cc3d-4ae4-b995-301ed881d2ca.png)
+
+Artwork by VileR
+
 # CGA Artifact Color Decoder
 Decodes NTSC composite artifact color from CGA RGBI image data. This is not a full NTSC simulation.
 
 CGA images are encoded into the output of the color generation circuit of the CGA based on the original schematic published in the IBM Personal Computer AT Technical Reference, First Edition (1984). That quasi-composite output is then sampled for luma and chroma signals.
 
-Developed for my PC emulator, Marty: https://github.com/dbalsom/marty
+Developed for my PC emulator, MartyPC: https://github.com/dbalsom/martypc
 
 # Composite Conversion
 
-Programs that have a Composite output mode utilizing the CGA's high resolution monochrome mode with a foreground color of bright white are essentially congruent to their composite representations - they can be sampled for artifact color direcctly. This is because the CGA color clock generator for White is tied to +5V, so whenever a white pixel appears on the screen, a composite signal of full luminance is output.  However, the story is different when color is involved, such as if the foreground color in high resolution mode is changed, or when games use a 320x200 4 color mode (See screenshot below), or text mode effects intended for composite displays such as the famous PC demo, 8088mph.  Naive sampling of the RGBI image data directly for artifact color will not produce the correct result.
+Programs that have a Composite output mode utilizing the CGA's high resolution monochrome mode with a foreground color of bright white have an RGBI image essentially congruent to their composite signal - they can be sampled for artifact color direcctly. This is because the CGA color clock generator for White is tied to +5V, so whenever a white pixel appears on the screen, a composite signal of full luminance is output.  However, the story is different when color is involved, such as if the foreground color in high resolution mode is changed, or when games use a 320x200 4 color mode (See screenshot below), or text mode effects intended for composite displays such as the famous PC demo, 8088mph.  Naive sampling of the RGBI image data directly for artifact color will not produce the correct result.
 
 ![gallery](https://user-images.githubusercontent.com/7229541/215890834-3b57ca17-862d-4348-8f99-6e87d7d7895e.png)
 
