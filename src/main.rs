@@ -1,25 +1,53 @@
+/*
+    cga_artifact_color
+    https://github.com/dbalsom/cga_artifact_color/
+
+    Copyright 2022-2023 Daniel Balsom
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the “Software”),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER   
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+
+    --------------------------------------------------------------------------
+*/
+
 #![allow(unused)]
 
 use std::path::PathBuf;
 use std::time::Instant;
+use std::str::FromStr;
 
+use bytemuck;
+use bpaf::{Bpaf, Parser};
 use image;
 use image::imageops::FilterType;
 
-
-use std::str::FromStr;
-
-use bpaf::{Bpaf, Parser};
-
 mod composite;
 mod ntsc;
+mod reenigne_composite;
 
 use ntsc::OutputType;
+use reenigne_composite::{ReCompositeContext, ReCompositeBuffers};
 
 #[derive (Copy, Clone, Debug, Bpaf)]
 pub enum SampleMethod {
     Fast,
     Accurate,
+    Reenigne
 }
 
 impl FromStr for SampleMethod {
@@ -31,11 +59,11 @@ impl FromStr for SampleMethod {
         match s.to_lowercase().as_str() {
             "fast" => Ok(SampleMethod::Fast),
             "accurate" => Ok(SampleMethod::Accurate),
+            "reenigne" => Ok(SampleMethod::Reenigne),
             _ => Err("Bad value for validatortype".to_string()),
         }
     }
 }
-
 
 #[derive(Debug, Bpaf)]
 #[bpaf(version, generate(cli_args))]
@@ -102,6 +130,62 @@ fn main() {
             std::process::exit(1);
         }
     }
+
+    // Do reenigne convert.
+    if let SampleMethod::Reenigne = shell_args.method {
+        
+        let mut comp_ctx = ReCompositeContext::new();
+        //comp_ctx.update_cga16_color(0b1_0110); // hires graphics
+        comp_ctx.update_cga16_color(0b0_0001); // 80 col text mode graphics
+
+        comp_ctx.print();
+
+        // Create buffers.
+        let mut comp_buf = ReCompositeBuffers::new();
+
+        // Convert RGB source image to indexed color.
+        let mut cga_buf: Vec<u8> = vec![0; (img_w * img_h) as usize];
+        composite::convert_rgb_to_cga_idx(&mut bytes_in, &mut cga_buf, img_w, img_h);
+
+        // Convert every row of source image.
+
+        let rgba_out32: &mut [u32] = bytemuck::cast_slice_mut(&mut rgba_out);
+
+        rgba_out32.fill(0xFFFFFFFF);
+
+        // Bench reenigne composite
+        let bench_t = Instant::now();
+
+        for y in 0..img_h {
+
+            let yo = (y * img_w) as usize;
+            let in_slice = &mut cga_buf[yo..(yo + img_w as usize)];
+            let out_slice = &mut rgba_out32[yo..(yo + img_w as usize)];
+
+            comp_ctx.composite_process(0, img_w as usize, &mut comp_buf, in_slice, out_slice);
+        }
+
+        let us = (Instant::now() - bench_t).as_micros();
+        let ms = us as f64 / 1000.0;
+        log::debug!("reenigne composite took: {} ms", ms);
+
+        match image::save_buffer(
+            "./out_reenigne.png",
+            &rgba_out,
+            img_w,
+            img_h,
+            image::ColorType::Rgba8,
+        ) {
+            Ok(_) => println!("Wrote out_reenigne.png!"),
+            Err(e) => {
+                println!("Error writing output file: {}", e)
+            }
+        }     
+
+        return;
+    }
+
+    // Non-reenigne methods
 
     // First, convert the input image to a composite signal. The resulting image will be grayscale (/4) of twice the horizontal resolution (*2)
     let mut composite_out = vec![0; bytes_in.len() / 2];

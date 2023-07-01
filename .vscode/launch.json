@@ -20,7 +20,7 @@
                 }
             },
             "args": [
-                "--input", ".\\examples\\king.png", "-h", "1.5", "-s", "1.0", "-l", "1.0", "--method", "accurate"
+                "--input", ".\\examples\\flower_girl.png", "-h", "1.0", "-s", "1.0", "-l", "1.0", "--method", "reenigne"
             ],
             "cwd": "${workspaceFolder}",
             "env": {
@@ -45,7 +45,9 @@
                     "kind": "bin"
                 }
             },
-            "args": [],
+            "args": [
+                "--input", ".\\examples\\flower_girl.png", "-h", "1.0", "-s", "1.0", "-l", "1.0", "--method", "reenigne"
+            ],
             "cwd": "${workspaceFolder}",
             "env": {
                 "RUST_LOG": "trace",
