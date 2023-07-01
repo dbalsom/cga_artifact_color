@@ -24,7 +24,7 @@ Screenshots of early Sierra titles showing the CGA's magenta and cyan palette ar
 
 # Reenigne's multiplexer
 
-As of July 1, 2023 I've included a third method, 'Reenigne', which implements [reenigne's](https://www.reenigne.org/blog/improved-composite-mode-support-for-dosbox/) chroma multiplexer algorithm in Rust. This produces superior results as it better models the analaog behavior of the chroma multiplexer. This algorithm is also much faster, although much more difficult to comprehend.
+As of July 1, 2023 I've included a third method, 'Reenigne', which implements [reenigne's](https://www.reenigne.org/blog/improved-composite-mode-support-for-dosbox/) chroma multiplexer algorithm in Rust. This produces superior results as it better models the analog behavior of the chroma multiplexer. This algorithm is also much faster, although much more difficult to comprehend.
 
 You can see my results vs reenigne's:
 
