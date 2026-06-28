@@ -2,11 +2,11 @@
     cga_artifact_color
     https://github.com/dbalsom/cga_artifact_color/
 
+    Copyright 2022-2026 Daniel Balsom
+
     This code implements Andrew Jenner (reenigne's) sampled chroma multiplexer 
     algorithm. This is now the algorithm used by DosBox, 86Box and MartyPC for
     composite color simulation.
-
-    
 */
 
 const CHROMA_MULTIPLEXER: [u8; 256] = [

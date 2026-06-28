@@ -2,7 +2,7 @@
     cga_artifact_color
     https://github.com/dbalsom/cga_artifact_color/
 
-    Copyright 2022-2023 Daniel Balsom
+    Copyright 2022-2026 Daniel Balsom
 
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the “Software”),
@@ -17,7 +17,7 @@
     THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER   
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
@@ -26,7 +26,7 @@
 
     NTSC conversion routines
 
-    Color sampling math adapted from 
+    Color sampling math adapted from
     https://www.shadertoy.com/view/Mdffz7 by xot
 */
 
@@ -233,6 +233,7 @@ pub fn process(
     sat: f32,
     luma: f32,
     method: SampleMethod,
+    phase_offset: f32,
     otype: OutputType,
 ) {
     //let weights = NTSCWeights::new();
@@ -247,11 +248,30 @@ pub fn process(
 
     match method {
         SampleMethod::Fast => {
-            artifact_colors_fast(img_in, img_out, img_w, img_h, hue, sat, luma, otype);
+            artifact_colors_fast(
+                img_in,
+                img_out,
+                img_w,
+                img_h,
+                hue,
+                sat,
+                luma,
+                phase_offset,
+                otype,
+            );
         }
         SampleMethod::Accurate => {
             artifact_colors(
-                img_in, img_out, img_w, img_h, hue, sat, luma, &weights_w, otype,
+                img_in,
+                img_out,
+                img_w,
+                img_h,
+                hue,
+                sat,
+                luma,
+                phase_offset,
+                &weights_w,
+                otype,
             );
         }
         SampleMethod::Reenigne => {
@@ -265,13 +285,11 @@ pub fn process(
 }
 
 pub fn sample_luma(img_in: &mut [u8], img_out: &mut [u8], img_w: u32, img_h: u32) {
-
     for y in 0..img_h {
         for x in 0..img_w {
             let mut yiq: Vector3<f32> = Vector3::new(0.0, 0.0, 0.0);
 
             for n in -2..2 {
-
                 let mut rgb = sample_rgb_xy(img_in, img_w, img_h, x as i32 + n, y as i32);
                 yiq += rgb;
             }
@@ -295,6 +313,7 @@ pub fn artifact_colors_fast(
     hue: f32,
     sat: f32,
     luma: f32,
+    phase_offset: f32,
     output_type: OutputType,
 ) {
     let mut sync_table: [(f32, f32, f32); 1280 + CCYCLE as usize] =
@@ -303,7 +322,7 @@ pub fn artifact_colors_fast(
     let pre_sync_t = Instant::now();
     // Precalculate sync
     for x in 0..(1280 + CCYCLE) {
-        let phase: f32 = ((x - CCYCLE_HALF) as f32) * TAU / 8.0;
+        let phase: f32 = ((x - CCYCLE_HALF) as f32) * TAU / 8.0 + phase_offset;
         sync_table[x as usize] = (phase, phase.cos(), phase.sin());
     }
     let sync_time = (Instant::now() - pre_sync_t).as_millis();
@@ -365,6 +384,7 @@ pub fn artifact_colors(
     hue: f32,
     sat: f32,
     luma: f32,
+    phase_offset: f32,
     weights: &NTSCWeightsWide,
     output_type: OutputType,
 ) {
@@ -392,7 +412,7 @@ pub fn artifact_colors(
                         y: 0.0,
                     };
 
-                let phase: f32 = TAU * (SCF2 * (img_w as f32) * pos.x);
+                let phase: f32 = TAU * (SCF2 * (img_w as f32) * pos.x) + phase_offset;
 
                 let mut signal = sample_gy_xy(
                     img_in,

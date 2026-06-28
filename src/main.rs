@@ -2,7 +2,7 @@
     cga_artifact_color
     https://github.com/dbalsom/cga_artifact_color/
 
-    Copyright 2022-2023 Daniel Balsom
+    Copyright 2022-2026 Daniel Balsom
 
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the “Software”),
@@ -17,7 +17,7 @@
     THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER   
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
@@ -28,11 +28,11 @@
 #![allow(unused)]
 
 use std::path::PathBuf;
-use std::time::Instant;
 use std::str::FromStr;
+use std::time::Instant;
 
-use bytemuck;
 use bpaf::{Bpaf, Parser};
+use bytemuck;
 use image;
 use image::imageops::FilterType;
 
@@ -41,13 +41,13 @@ mod ntsc;
 mod reenigne_composite;
 
 use ntsc::OutputType;
-use reenigne_composite::{ReCompositeContext, ReCompositeBuffers};
+use reenigne_composite::{ReCompositeBuffers, ReCompositeContext};
 
-#[derive (Copy, Clone, Debug, Bpaf)]
+#[derive(Copy, Clone, Debug, Bpaf)]
 pub enum SampleMethod {
     Fast,
     Accurate,
-    Reenigne
+    Reenigne,
 }
 
 impl FromStr for SampleMethod {
@@ -81,7 +81,10 @@ pub struct CmdLineArgs {
     pub luma: f32,
 
     #[bpaf(long)]
-    pub method: SampleMethod
+    pub method: SampleMethod,
+
+    #[bpaf(long("phase-deg"), argument("DEGREES"), fallback(0.0))]
+    pub phase_deg: f32,
 }
 
 fn main() {
@@ -119,7 +122,7 @@ fn main() {
             bytes_in = rgba8_img.into_raw();
             rgba_out = vec![0; bytes_in.len()];
         }
-        640 => {
+        560..=640 => {
             rgba8_img = img.to_rgba8();
             bytes_in = rgba8_img.into_raw();
 
@@ -133,7 +136,6 @@ fn main() {
 
     // Do reenigne convert.
     if let SampleMethod::Reenigne = shell_args.method {
-        
         let mut comp_ctx = ReCompositeContext::new();
         //comp_ctx.update_cga16_color(0b1_0110); // hires graphics
         comp_ctx.update_cga16_color(0b0_0001); // 80 col text mode graphics
@@ -157,7 +159,6 @@ fn main() {
         let bench_t = Instant::now();
 
         for y in 0..img_h {
-
             let yo = (y * img_w) as usize;
             let in_slice = &mut cga_buf[yo..(yo + img_w as usize)];
             let out_slice = &mut rgba_out32[yo..(yo + img_w as usize)];
@@ -180,12 +181,14 @@ fn main() {
             Err(e) => {
                 println!("Error writing output file: {}", e)
             }
-        }     
+        }
 
         return;
     }
 
     // Non-reenigne methods
+
+    let phase_offset = shell_args.phase_deg.to_radians();
 
     // First, convert the input image to a composite signal. The resulting image will be grayscale (/4) of twice the horizontal resolution (*2)
     let mut composite_out = vec![0; bytes_in.len() / 2];
@@ -219,6 +222,7 @@ fn main() {
         shell_args.sat,
         shell_args.luma,
         shell_args.method,
+        phase_offset,
         OutputType::Rgb,
     );
 
@@ -242,8 +246,9 @@ fn main() {
         img_h,
         shell_args.hue,
         shell_args.sat,
-        shell_args.luma,        
+        shell_args.luma,
         shell_args.method,
+        phase_offset,
         OutputType::Luma,
     );
 
@@ -269,6 +274,7 @@ fn main() {
         shell_args.sat,
         shell_args.luma,
         shell_args.method,
+        phase_offset,
         OutputType::Chroma,
     );
 

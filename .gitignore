@@ -11,4 +11,8 @@ Cargo.lock
 
 # Allow pngs in examples dir
 *.png
-!/examples/*.png
+!/examples/**/*.png
+!/img/*.png
+
+# IntelliJ IDEA
+/.idea
